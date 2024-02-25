@@ -1,6 +1,6 @@
 [package]
 author = "Akshat Shukla"
-name = "example-encoder-cli"
+name = "b64-cli"
 version = "0.1.0"
 edition = "2021"
 
