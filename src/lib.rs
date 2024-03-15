@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 
+#[cfg(test)]
+mod tests;
+
 pub fn encode_data(data: &[u8]) -> String {
     let mut vec: Vec<u8> = Vec::new();
     let mut res: String = String::new();
