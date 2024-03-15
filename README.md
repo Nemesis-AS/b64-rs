@@ -10,9 +10,9 @@ A base64 string encoder and decoder library written in Rust with zero dependenci
 use b64::encode_data;
 
 fn main() {
-  let data: String = String::from("Hello World!");
+  let input: String = String::from("Hello World!");
 
-  let enc: String = encode_data(data.as_bytes());
+  let enc: String = encode_data(input.as_bytes());
   println!("Encoded Data: {}", enc);
 ]
 ```
@@ -23,9 +23,8 @@ fn main() {
 use b64::decode_data;
 
 fn main() {
-  let str: &str = "SGVsbG8gV29ybGQh";
-
-  let dec: Vec<u8> = decode_data(str);
+  let input: String = String::from("SGVsbG8gV29ybGQh");
+  let dec: Vec<u8> = decode_data(input);
   let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
 
   println!("Decoded Data: {}", string);
@@ -42,4 +41,19 @@ fn encode_data(data: &[u8]) -> String
 
 ```rs
 fn decode_quadruplet(data: &str) -> Vec<u8>
+```
+
+## Builing from Source
+
+1. Clone this repo
+2. Build using
+```shell
+cargo build
+```
+
+## Testing
+
+Some basic tests are provided in the repo, those can be run using
+```shell
+cargo test
 ```
