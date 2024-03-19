@@ -1,8 +1,41 @@
+//! # b64
+//! A base64 string encoder and decoder library written in Rust with zero dependencies.
+//! 
+//! ## Getting Started
+//!
+//! ### Encoding data
+//! 
+//! ```no_run
+//! use b64::encode_data;
+//! 
+//! fn main() {
+//!   let input: String = String::from("Hello World!");
+//! 
+//!   let enc: String = encode_data(input.as_bytes());
+//!   println!("Encoded Data: {}", enc);
+//! }
+//! ```
+//! 
+//! ### Decoding data
+//! 
+//! ```no_run
+//! use b64::decode_data;
+//! 
+//! fn main() {
+//!   let input: String = String::from("SGVsbG8gV29ybGQh");
+//!   let dec: Vec<u8> = decode_data(input);
+//!   let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
+//! 
+//!   println!("Decoded Data: {}", string);
+//! }
+//! ```
+
 use std::collections::HashMap;
 
 #[cfg(test)]
 mod tests;
 
+/// Encodes the given byte slice(`&[u8]`) into a base64 `String`.
 pub fn encode_data(data: &[u8]) -> String {
     let mut vec: Vec<u8> = Vec::new();
     let mut res: String = String::new();
@@ -158,6 +191,7 @@ fn decode_quadruplet(data: &str) -> Vec<u8> {
     v
 }
 
+/// Decodes the input string into a byte array `Vec<u8>`.
 pub fn decode_data(data: String) -> Vec<u8> {
     if data.len() % 4 != 0 {
         panic!("Invalid Data!");
