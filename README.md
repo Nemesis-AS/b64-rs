@@ -14,7 +14,7 @@ fn main() {
 
   let enc: String = encode_data(input.as_bytes());
   println!("Encoded Data: {}", enc);
-]
+}
 ```
 
 ### Decoding data
@@ -28,7 +28,7 @@ fn main() {
   let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
 
   println!("Decoded Data: {}", string);
-]
+}
 ```
 
 ## API
