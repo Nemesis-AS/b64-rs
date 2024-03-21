@@ -27,3 +27,19 @@ fn binary_encoding_decoding() {
 
     assert_eq!(dec, input);
 }
+
+#[test]
+fn validity_check_true() {
+    let input: String = String::from("ABCDEFGH");
+    let res: bool = is_valid_b64(&input);
+    
+    assert_eq!(res, true);
+}
+
+#[test]
+fn validity_check_false() {
+    let input: String = String::from("ABSJF$#A");
+    let res: bool = is_valid_b64(&input);
+    
+    assert_eq!(res, false);
+}
