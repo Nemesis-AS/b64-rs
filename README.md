@@ -31,6 +31,20 @@ fn main() {
 }
 ```
 
+### Check if a string is valid base64 string
+
+```rs
+use b64::is_valid_b64;
+ 
+fn main() {
+  let input1: String = String::from("ABCDEFGH");
+  let input2: String = String::from("ABSJF$#A");
+ 
+  println!("Is '{}' a valid base64 string: {}", input1, is_valid_b64(&input1));
+  println!("Is '{}' a valid base64 string: {}", input2, is_valid_b64(&input2));
+}
+```
+
 ## API
 
 The library provides two public functions, one each for encoding and decoding. Their signatures are:
@@ -41,6 +55,10 @@ fn encode_data(data: &[u8]) -> String
 
 ```rs
 fn decode_quadruplet(data: &str) -> Vec<u8>
+```
+
+```rs
+fn is_valid_b64(data: &String) -> bool
 ```
 
 ## Builing from Source
@@ -56,4 +74,11 @@ cargo build
 Some basic tests are provided in the repo, those can be run using
 ```shell
 cargo test
+```
+
+## Docs
+
+The library has documentation comments. Build the docs using
+```shell
+cargo doc
 ```

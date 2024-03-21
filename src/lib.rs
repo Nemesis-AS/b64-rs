@@ -29,6 +29,20 @@
 //!   println!("Decoded Data: {}", string);
 //! }
 //! ```
+//! 
+//! ### Check if a string is valid base64 string
+//! 
+//! ```no_run
+//! use b64::is_valid_b64;
+//! 
+//! fn main() {
+//!     let input1: String = String::from("ABCDEFGH");
+//!     let input2: String = String::from("ABSJF$#A");
+//! 
+//!     println!("Is '{}' a valid base64 string: {}", input1, is_valid_b64(&input1));
+//!     println!("Is '{}' a valid base64 string: {}", input2, is_valid_b64(&input2));
+//! }
+//! ```
 
 use std::collections::HashMap;
 
@@ -207,4 +221,25 @@ pub fn decode_data(data: String) -> Vec<u8> {
     }
 
     decoded_data
+}
+
+/// Returns `true` if the given string is valid base64 string
+pub fn is_valid_b64(inp: &String) -> bool {
+    if inp.len() % 4 != 0 {
+        return false;
+    }
+    
+    for ch in inp.bytes() {
+        // Uppercase Alphabets: 65-90
+        // Lowercase Alphabets: 97-122
+        // Numbers: 48-57
+        // +: 43
+        // /: 47
+        // =: 61
+        if !((ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) || ch == 43 || ch == 47 || ch == 61) {
+            return false;
+        }
+    }
+
+    true
 }
