@@ -23,7 +23,7 @@
 //! 
 //! fn main() {
 //!   let input: String = String::from("SGVsbG8gV29ybGQh");
-//!   let dec: Vec<u8> = decode_data(input);
+//!   let dec: Vec<u8> = decode_data(input).expect("Invalid base64 string!");
 //!   let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
 //! 
 //!   println!("Decoded Data: {}", string);
@@ -44,10 +44,32 @@
 //! }
 //! ```
 
+use core::fmt;
 use std::collections::HashMap;
 
 #[cfg(test)]
 mod tests;
+
+type Result<T> = std::result::Result<T, B64Error>;
+
+#[derive(Debug, Clone)]
+pub enum B64Error {
+    InvalidCharacters,
+    InvalidLength
+}
+
+impl fmt::Display for B64Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            B64Error::InvalidCharacters => {
+                write!(f, "The base64 string contains invalid characters!")
+            },
+            B64Error::InvalidLength => {
+                write!(f, "The length of the base64 string is invalid!")
+            }
+        }
+    }
+}
 
 /// Encodes the given byte slice(`&[u8]`) into a base64 `String`.
 pub fn encode_data(data: &[u8]) -> String {
@@ -206,9 +228,20 @@ fn decode_quadruplet(data: &str) -> Vec<u8> {
 }
 
 /// Decodes the input string into a byte array `Vec<u8>`.
-pub fn decode_data(data: String) -> Vec<u8> {
+pub fn decode_data(data: String) -> Result<Vec<u8>> {
     if data.len() % 4 != 0 {
-        panic!("Invalid Data!");
+        return Err(B64Error::InvalidLength);
+    }
+
+    if !is_valid_b64(&data) {
+        return Err(B64Error::InvalidCharacters);
+    }
+
+    // '=' is only valid as a trailing padding character (at most 2 of them).
+    let trimmed = data.trim_end_matches('=');
+    let padding_len = data.len() - trimmed.len();
+    if padding_len > 2 || trimmed.contains('=') {
+        return Err(B64Error::InvalidCharacters);
     }
 
     let mut datac: String = data.clone();
@@ -220,7 +253,7 @@ pub fn decode_data(data: String) -> Vec<u8> {
         decoded_data.append(&mut res);
     }
 
-    decoded_data
+    Ok(decoded_data)
 }
 
 /// Returns `true` if the given string is valid base64 string

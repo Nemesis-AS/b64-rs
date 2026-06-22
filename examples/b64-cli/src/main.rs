@@ -19,7 +19,7 @@ fn main() {
         let enc: String = encode_data(args.input.as_bytes());
         println!("Encoded Data: {}", enc);
     } else {
-        let dec: Vec<u8> = decode_data(args.input);
+        let dec: Vec<u8> = decode_data(args.input).expect("Invalid base64 string!");
 
         if args.string {
             let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");

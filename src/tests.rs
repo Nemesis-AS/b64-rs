@@ -12,7 +12,7 @@ fn simple_text_encoding_test() {
 #[test]
 fn simple_text_decoding_test() {
     let input: String = String::from("SGVsbG8gV29ybGQh");
-    let dec: Vec<u8> = decode_data(input);
+    let dec: Vec<u8> = decode_data(input).unwrap();
     let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
     
     let output = String::from("Hello World!");
@@ -23,9 +23,25 @@ fn simple_text_decoding_test() {
 fn binary_encoding_decoding() {
     let input: Vec<u8> = vec![12, 14, 26, 48, 53, 22, 2, 12];
     let enc: String = encode_data(input.as_slice());
-    let dec: Vec<u8> = decode_data(enc);
+    let dec: Vec<u8> = decode_data(enc).unwrap();
 
     assert_eq!(dec, input);
+}
+
+#[test]
+fn invalid_characters_decoding() {
+    let input: String = String::from("AB$%");
+    let res = decode_data(input);
+
+    assert!(matches!(res, Err(B64Error::InvalidCharacters)));
+}
+
+#[test]
+fn invalid_length_decoding() {
+    let input: String = String::from("ABC");
+    let res = decode_data(input);
+
+    assert!(matches!(res, Err(B64Error::InvalidLength)));
 }
 
 #[test]
