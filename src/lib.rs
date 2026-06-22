@@ -45,7 +45,6 @@
 //! ```
 
 use core::fmt;
-use std::collections::HashMap;
 
 #[cfg(test)]
 mod tests;
@@ -73,19 +72,10 @@ impl fmt::Display for B64Error {
 
 /// Encodes the given byte slice(`&[u8]`) into a base64 `String`.
 pub fn encode_data(data: &[u8]) -> String {
-    let mut vec: Vec<u8> = Vec::new();
     let mut res: String = String::new();
 
-    vec.extend_from_slice(data);
-   
-    while vec.len() > 2 {
-        let sl: Vec<u8> = vec.drain(0..3).collect();
-        let st: String = encode_triplet(sl.as_slice());
-        res.push_str(st.as_str());
-    }
-
-    if vec.len() > 0 {
-        let st: String = encode_triplet(vec.as_slice());
+    for chunk in data.chunks(3) {
+        let st: String = encode_triplet(chunk);
         res.push_str(st.as_str());
     }
 
@@ -93,7 +83,7 @@ pub fn encode_data(data: &[u8]) -> String {
 }
 
 fn encode_triplet(chars: &[u8]) -> String {
-    const CHARACTERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    const CHARACTERS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
     let mut idxs: Vec<usize> = Vec::new();
 
@@ -118,89 +108,34 @@ fn encode_triplet(chars: &[u8]) -> String {
         },
         _ => ()
     }
-    
+
     let mut res: String = String::new();
     for idx in idxs {
-        res.push(CHARACTERS.chars().nth(idx).unwrap());
+        res.push(CHARACTERS[idx] as char);
     }
 
     res
 }
 
+/// Maps an ASCII byte to its base64 sextet value, or `255` if it isn't a
+/// base64 alphabet character. Built once at compile time to avoid
+/// reconstructing a lookup table on every call.
+const DECODE_TABLE: [u8; 256] = {
+    const CHARACTERS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut table = [255u8; 256];
+    let mut i = 0;
+    while i < CHARACTERS.len() {
+        table[CHARACTERS[i] as usize] = i as u8;
+        i += 1;
+    }
+    table
+};
+
 fn decode_quadruplet(data: &str) -> Vec<u8> {
-    let map: HashMap<char, u8> = HashMap::from([
-        ('A', 0),
-        ('B', 1),
-        ('C', 2),
-        ('D', 3),
-        ('E', 4),
-        ('F', 5),
-        ('G', 6),
-        ('H', 7),
-        ('I', 8),
-        ('J', 9),
-        ('K', 10),
-        ('L', 11),
-        ('M', 12),
-        ('N', 13),
-        ('O', 14),
-        ('P', 15),
-        ('Q', 16),
-        ('R', 17),
-        ('S', 18),
-        ('T', 19),
-        ('U', 20),
-        ('V', 21),
-        ('W', 22),
-        ('X', 23),
-        ('Y', 24),
-        ('Z', 25),
-        ('a', 26),
-        ('b', 27),
-        ('c', 28),
-        ('d', 29),
-        ('e', 30),
-        ('f', 31),
-        ('g', 32),
-        ('h', 33),
-        ('i', 34),
-        ('j', 35),
-        ('k', 36),
-        ('l', 37),
-        ('m', 38),
-        ('n', 39),
-        ('o', 40),
-        ('p', 41),
-        ('q', 42),
-        ('r', 43),
-        ('s', 44),
-        ('t', 45),
-        ('u', 46),
-        ('v', 47),
-        ('w', 48),
-        ('x', 49),
-        ('y', 50),
-        ('z', 51),
-        ('0', 52),
-        ('1', 53),
-        ('2', 54),
-        ('3', 55),
-        ('4', 56),
-        ('5', 57),
-        ('6', 58),
-        ('7', 59),
-        ('8', 60),
-        ('9', 61),
-        ('+', 62),
-        ('/', 63)
-    ]);
-
     let mut mdata: Vec<u8> = Vec::new();
-    let fallback: u8 = 255;
 
-    for ch in data.chars() {
-
-        let val = map.get(&ch).unwrap_or(&fallback).clone();
+    for &b in data.as_bytes() {
+        let val = DECODE_TABLE[b as usize];
         if val == 255 {
             break;
         }
@@ -244,12 +179,11 @@ pub fn decode_data(data: String) -> Result<Vec<u8>> {
         return Err(B64Error::InvalidCharacters);
     }
 
-    let mut datac: String = data.clone();
     let mut decoded_data: Vec<u8> = Vec::new();
 
-    while datac.len() > 0 {
-        let quad = datac.drain(..4);
-        let mut res: Vec<u8> = decode_quadruplet(quad.as_str());
+    for chunk in data.as_bytes().chunks(4) {
+        let quad = std::str::from_utf8(chunk).unwrap();
+        let mut res: Vec<u8> = decode_quadruplet(quad);
         decoded_data.append(&mut res);
     }
 
