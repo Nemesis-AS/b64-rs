@@ -24,7 +24,7 @@ use b64::decode_data;
 
 fn main() {
   let input: String = String::from("SGVsbG8gV29ybGQh");
-  let dec: Vec<u8> = decode_data(input);
+  let dec: Vec<u8> = decode_data(&input).expect("Invalid base64 string!");
   let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
 
   println!("Decoded Data: {}", string);
@@ -47,18 +47,18 @@ fn main() {
 
 ## API
 
-The library provides two public functions, one each for encoding and decoding. Their signatures are:
+The library provides three public functions, for encoding, decoding, and validation. Their signatures are:
 
 ```rs
 fn encode_data(data: &[u8]) -> String
 ```
 
 ```rs
-fn decode_quadruplet(data: &str) -> Vec<u8>
+fn decode_data(data: &str) -> Result<Vec<u8>, B64Error>
 ```
 
 ```rs
-fn is_valid_b64(data: &String) -> bool
+fn is_valid_b64(data: &str) -> bool
 ```
 
 ## Builing from Source
@@ -82,3 +82,7 @@ The library has documentation comments. Build the docs using
 ```shell
 cargo doc
 ```
+
+## CLI
+
+A command-line wrapper around this library is provided in [`examples/b64-cli`](examples/b64-cli/README.md). See its README for build and usage instructions.

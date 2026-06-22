@@ -23,7 +23,7 @@
 //! 
 //! fn main() {
 //!   let input: String = String::from("SGVsbG8gV29ybGQh");
-//!   let dec: Vec<u8> = decode_data(input).expect("Invalid base64 string!");
+//!   let dec: Vec<u8> = decode_data(&input).expect("Invalid base64 string!");
 //!   let string: String = String::from_utf8(dec).expect("The computed bytes are not UTF-8!");
 //! 
 //!   println!("Decoded Data: {}", string);
@@ -163,12 +163,12 @@ fn decode_quadruplet(data: &str) -> Vec<u8> {
 }
 
 /// Decodes the input string into a byte array `Vec<u8>`.
-pub fn decode_data(data: String) -> Result<Vec<u8>> {
+pub fn decode_data(data: &str) -> Result<Vec<u8>> {
     if data.len() % 4 != 0 {
         return Err(B64Error::InvalidLength);
     }
 
-    if !is_valid_b64(&data) {
+    if !is_valid_b64(data) {
         return Err(B64Error::InvalidCharacters);
     }
 
@@ -191,7 +191,7 @@ pub fn decode_data(data: String) -> Result<Vec<u8>> {
 }
 
 /// Returns `true` if the given string is valid base64 string
-pub fn is_valid_b64(inp: &String) -> bool {
+pub fn is_valid_b64(inp: &str) -> bool {
     if inp.len() % 4 != 0 {
         return false;
     }
